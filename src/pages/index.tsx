@@ -1,5 +1,6 @@
+/* eslint-disable no-nested-ternary */
 import { Button, Box } from '@chakra-ui/react';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useInfiniteQuery } from 'react-query';
 
 import { Header } from '../components/Header';
@@ -25,7 +26,7 @@ export default function Home(): JSX.Element {
   const fetchImages = async ({
     pageParam = null,
   }): Promise<GetImagesResponse> => {
-    const response = await api.get('images', {
+    const response = await api.get('/api/images', {
       params: { after: pageParam },
     });
 
@@ -51,25 +52,31 @@ export default function Home(): JSX.Element {
   });
 
   const formattedData = useMemo(() => {
-    return data?.pages.flatMap<Card>(page => {
-      return page.data;
-    });
+    // return data?.pages.flatMap<Card>(page => {
+    //   return page.data;
+    // });
+    return data ? data.pages.map(page => page.data).flat() : [];
   }, [data]);
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (isError) {
+    return <Error />;
+  }
 
   return (
     <>
-      {isError && <Error />}
-      {isLoading ? (
-        <Loading />
-      ) : (
-        <>
-          <Header />
-          <Box maxW={1120} px={20} mx="auto" my={20}>
-            <CardList cards={formattedData} />
-            {/* TODO RENDER LOAD MORE BUTTON IF DATA HAS NEXT PAGE */}
-          </Box>
-        </>
-      )}
+      <Header />
+      <Box maxW={1120} px={20} mx="auto" my={20}>
+        <CardList cards={formattedData} />
+        {hasNextPage && (
+          <Button onClick={() => fetchNextPage()}>
+            {isFetchingNextPage ? 'Carregando...' : 'Carregar mais'}
+          </Button>
+        )}
+      </Box>
     </>
   );
 }

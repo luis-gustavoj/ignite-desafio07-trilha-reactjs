@@ -1,5 +1,5 @@
 import { SimpleGrid, useDisclosure } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Card } from './Card';
 import { ModalViewImage } from './Modal/ViewImage';
 
@@ -29,7 +29,11 @@ export function CardList({ cards }: CardsProps): JSX.Element {
     <>
       <SimpleGrid columns={3} spacing="40px">
         {cards.map(card => (
-          <Card data={card} viewImage={handleSelectedImage} />
+          <Card
+            data={card}
+            key={card.id}
+            viewImage={() => handleSelectedImage(card.url)}
+          />
         ))}
       </SimpleGrid>
 
